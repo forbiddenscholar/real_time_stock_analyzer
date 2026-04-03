@@ -1,21 +1,28 @@
 #include "Analyzer.h"
+#include "Stream.h"
 #include <bits/stdc++.h>
+#include <unistd.h> // for sleep
 using namespace std;
 
 int main(){
-    Analyzer analyzer;
 
     vector <int> test = {100, 80, 60, 70, 75, 85};
 
-    for (int i = 0; i < test.size(); i++) {
-    analyzer.update(test[i]);
+    Stream stream(test);
+    Analyzer analyzer;
+
+    while(stream.hasNext()){
+        int price = stream.getNext();
+
+        analyzer.update(price);
+        
+        cout << "Price : " << price
+             << " Span : " << analyzer.getSpan()
+             << " Profit : " << analyzer.getMaxProfit()
+             << endl;
+
+        sleep(1);
     }
 
-    for (int i=0; i<test.size(); i++){
-    cout << "Price: " << test[i]
-         << " Span: " << analyzer.getSpan()
-         << " Profit: " << analyzer.getMaxProfit()
-         << " NGE: " << analyzer.getNGEAt(i)
-         << endl;
-    }
+    return 0;
 }
