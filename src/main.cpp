@@ -7,13 +7,15 @@ int main(){
 
     vector <int> test = {100, 80, 60, 70, 75, 85};
 
-    for(int price : test){
-        analyzer.update(price);
+    for (int i = 0; i < test.size(); i++) {
+    analyzer.update(test[i]);
+    }
 
-        cout << "Price: " << price
-             << " Span: " << analyzer.getSpan()
-             << " Profit: " << analyzer.getMaxProfit()
-             << " NGE: " << analyzer.getLastNGE()
-             << endl;
+    for (int i=0; i<test.size(); i++){
+    cout << "Price: " << test[i]
+         << " Span: " << analyzer.getSpan()
+         << " Profit: " << analyzer.getMaxProfit()
+         << " NGE: " << analyzer.getNGEAt(i)
+         << endl;
     }
 }

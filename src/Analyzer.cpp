@@ -5,7 +5,7 @@ Analyzer::Analyzer(){
     minPrice = INT_MAX;
     maxProfit = 0;
     lastSpan = 0;
-    lastNGE = -1;
+    currentIndex = 0;
 }
 
 void Analyzer::update(int price){
@@ -25,17 +25,23 @@ void Analyzer::update(int price){
     maxProfit = max(maxProfit, price - minPrice);
 
     //Next greater element
-    lastNGE = -1;
+    int index = currentIndex;
 
-    while (!ngeStack.empty() && price > ngeStack.top()) {
-        lastNGE = price;
+    while (!ngeStack.empty() && price > ngeStack.top().first) {
+        int prevIndex = ngeStack.top().second;
+        nge[prevIndex] = price;
         ngeStack.pop();
     }
 
-    ngeStack.push(price);
+    ngeStack.push({price, index});
+    // for default value of current
+    nge.push_back(-1);
+
+    currentIndex++;
 }
 
 // getters 
 int Analyzer::getSpan() { return lastSpan; }
 int Analyzer::getMaxProfit() { return maxProfit; }
-int Analyzer::getLastNGE() { return lastNGE; }
+int Analyzer::getLastNGE() { return nge[currentIndex-1]; }
+int Analyzer::getNGEAt(int index){ return nge[index]; }
