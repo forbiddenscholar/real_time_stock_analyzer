@@ -10,8 +10,8 @@ private :
     stack<pair<int, int>> spanStack; // stock span 
     stack<pair<int, int>> ngeStack; // {price, index}
     vector <int> nge;
+    
     int currentIndex;
-
     int minPrice;
     int maxProfit;
     int lastSpan;

@@ -1,14 +1,23 @@
 #include "Stream.h"
+#include <fstream>
 
-Stream :: Stream(const vector <int> & data){
-    prices = data;
-    index = 0;
-}
+vector<int> loadPrices(const string& filename) {
+    vector<int> prices;
+    ifstream file(filename);
+    string line;
 
-bool Stream :: hasNext(){
-    return index < prices.size();
-}
+    // skip header
+    getline(file, line);
 
-int Stream :: getNext(){
-    return prices[index++];
+    while (getline(file, line)) {
+        if (line.empty()) continue;
+
+        // remove possible carriage return / spaces
+        line.erase(remove(line.begin(), line.end(), '\r'), line.end());
+        line.erase(remove_if(line.begin(), line.end(), ::isspace), line.end());
+
+        prices.push_back(stoi(line));
+    }
+
+    return prices;
 }

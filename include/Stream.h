@@ -2,14 +2,5 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-class Stream{
-private :
-    vector <int> prices;
-    int index;
-
-public : 
-    Stream(const vector <int> & data);
-
-    bool hasNext();
-    int getNext();
-};
+// Helper function to load prices from CSV file
+vector<int> loadPrices(const string& filename);

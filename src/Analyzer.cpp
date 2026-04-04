@@ -20,7 +20,7 @@ void Analyzer::update(int price){
     spanStack.push({price, span});
     lastSpan = span;
 
-    // Max profit
+    // Max profit: track minimum price seen so far, then compute profit
     minPrice = min(minPrice, price);
     maxProfit = max(maxProfit, price - minPrice);
 

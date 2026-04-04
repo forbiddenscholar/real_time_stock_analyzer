@@ -1,27 +1,37 @@
 #include "Analyzer.h"
 #include "Stream.h"
+#include "FileManager.h"
 #include <bits/stdc++.h>
-#include <unistd.h> // for sleep
+#include <unistd.h>
 using namespace std;
 
-int main(){
+int main(int argc, char* argv[]) {
 
-    vector <int> test = {100, 80, 60, 70, 75, 85};
+    if (argc < 2) {
+        cout << "Usage: ./app <input_file>\n";
+        return 1;
+    }
 
-    Stream stream(test);
+    string filename = argv[1];
+
+    vector<int> prices = loadPrices(filename);
     Analyzer analyzer;
+    FileManager file("../data/output.csv");
 
-    while(stream.hasNext()){
-        int price = stream.getNext();
+    int time = 0;
 
+    for (int price : prices) {
         analyzer.update(price);
-        
-        cout << "Price : " << price
-             << " Span : " << analyzer.getSpan()
-             << " Profit : " << analyzer.getMaxProfit()
-             << endl;
 
-        sleep(1);
+        file.write(
+            time,
+            price,
+            analyzer.getSpan(),
+            analyzer.getMaxProfit()
+        );
+
+        time++;
+        usleep(300000);
     }
 
     return 0;
