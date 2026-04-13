@@ -2,37 +2,70 @@
 #include "Stream.h"
 #include "FileManager.h"
 #include <bits/stdc++.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#define SLEEP_MS(ms) Sleep(ms)
+#else
 #include <unistd.h>
+#define SLEEP_MS(ms) usleep((ms) * 1000)
+#endif
+
 using namespace std;
 
 int main(int argc, char* argv[]) {
 
     if (argc < 2) {
-        cout << "Usage: ./app <input_file>\n";
+        cout << "Usage: app.exe <input_file>\n";
         return 1;
     }
 
-    string filename = argv[1];
+    string inputFile = argv[1];
+    string outputFile = "data/output.csv"; // relative to PROJECT_DIR which is the cwd now
 
-    vector<int> prices = loadPrices(filename);
+    vector<double> prices = loadPrices(inputFile);
+
+    if (prices.empty()) {
+        cerr << "Error: No prices loaded from " << inputFile << endl;
+        return 1;
+    }
+
     Analyzer analyzer;
-    FileManager file("../data/output.csv");
+    FileManager file(outputFile);
 
     int time = 0;
 
-    for (int price : prices) {
+    for (double price : prices) {
         analyzer.update(price);
 
         file.write(
             time,
             price,
             analyzer.getSpan(),
-            analyzer.getMaxProfit()
+            analyzer.getMaxProfit(),
+            analyzer.getHeapMin(),
+            analyzer.getHeapMax()
         );
 
         time++;
-        usleep(300000);
+        // Small delay for streaming effect (optional, can be removed)
+        // SLEEP_MS(100);
     }
+    
+    // Call computeNGE at the end because the user added it into Analyzer class
+    analyzer.computeNGE(prices);
+
+    // Write sorted historical trends file
+    vector<double> sorted = analyzer.getSortedPrices(prices);
+    ofstream sortOut("data/sorted_prices.csv");
+    sortOut << "sorted_price\n";
+    for(double sp : sorted) {
+        sortOut << sp << "\n";
+    }
+    sortOut.close();
+
+    cout << "Analysis complete. Processed " << time << " prices." << endl;
+    cout << "Output written to: " << outputFile << endl;
 
     return 0;
 }

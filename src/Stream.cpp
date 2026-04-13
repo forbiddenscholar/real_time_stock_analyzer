@@ -1,8 +1,9 @@
 #include "Stream.h"
 #include <fstream>
+#include <algorithm>
 
-vector<int> loadPrices(const string& filename) {
-    vector<int> prices;
+vector<double> loadPrices(const string& filename) {
+    vector<double> prices;
     ifstream file(filename);
     string line;
 
@@ -16,7 +17,9 @@ vector<int> loadPrices(const string& filename) {
         line.erase(remove(line.begin(), line.end(), '\r'), line.end());
         line.erase(remove_if(line.begin(), line.end(), ::isspace), line.end());
 
-        prices.push_back(stoi(line));
+        if(!line.empty()) {
+            prices.push_back(stod(line));
+        }
     }
 
     return prices;

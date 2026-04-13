@@ -3,4 +3,4 @@
 using namespace std;
 
 // Helper function to load prices from CSV file
-vector<int> loadPrices(const string& filename);
+vector<double> loadPrices(const string& filename);
