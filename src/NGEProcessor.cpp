@@ -58,9 +58,13 @@ int main() {
     vector<double> nge = computeNGE(prices);
 
     // write final file
-    ofstream out("data/final.csv");
+    ofstream out("data/final.csv", ios::trunc);
+    if (!out.is_open()) {
+        cerr << "Error opening output file data/final.csv\n";
+        return 1;
+    }
 
-    out << "time,price,span,profit,heap_min,heap_max,nge\n";
+    out << "time,price,span,profit,heap_min,heap_max,best_buy_index,best_sell_index,nge\n";
 
     for (size_t i = 0; i < rows.size(); i++) {
         out << rows[i] << "," << nge[i] << "\n";

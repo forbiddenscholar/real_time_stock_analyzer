@@ -44,7 +44,9 @@ int main(int argc, char* argv[]) {
             analyzer.getSpan(),
             analyzer.getMaxProfit(),
             analyzer.getHeapMin(),
-            analyzer.getHeapMax()
+            analyzer.getHeapMax(),
+            analyzer.getBestBuyDate(),
+            analyzer.getBestSellDate()
         );
 
         time++;

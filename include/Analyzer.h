@@ -15,7 +15,10 @@ private:
 
     int currentIndex;
     double minPrice;
+    int minPriceIndex;
     double maxProfit;
+    int bestBuyDate;
+    int bestSellDate;
     int lastSpan;
 
 public:
@@ -27,6 +30,9 @@ public:
 
     int getSpan();
     double getMaxProfit();
+    int getBestBuyDate();
+    int getBestSellDate();
+    bool hasBestTrade() const;
     double getHeapMin();
     double getHeapMax();
     double getNGEAt(int index);
