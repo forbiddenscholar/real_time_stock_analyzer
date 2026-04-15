@@ -7,24 +7,34 @@ using namespace std;
 
 class Analyzer{
 private :
-    stack<pair<int, int>> spanStack; // stock span 
-    stack<pair<int, int>> ngeStack; // {price, index}
-    vector <int> nge;
+    stack<pair<double, int>> spanStack; // stock span 
+    priority_queue<double> maxHeap;
+    priority_queue<double, vector<double>, greater<double>> minHeap;
     
     int currentIndex;
-    int minPrice;
-    int maxProfit;
+
+    double minPrice;
+    int minPriceIndex;
+
+    double maxProfit;
+    int bestBuyDate;
+    int bestSellDate;
+
     int lastSpan;
 
 public : 
     Analyzer();
 
-    void update(int price);
+    void update(double price);
 
     int getSpan();
-    int getMaxProfit();
-    int getLastNGE();
-    int getNGEAt(int index);
+    double getMaxProfit();
+    int getBestBuyDate();
+    int getBestSellDate();
+    bool hasBestTrade() const;
+
+    double getHeapMin();
+    double getHeapMax();
 };
 
 #endif

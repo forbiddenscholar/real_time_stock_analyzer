@@ -2,13 +2,17 @@
 #include <bits/stdc++.h>
 
 Analyzer::Analyzer(){
-    minPrice = INT_MAX;
-    maxProfit = 0;
+    minPrice = DBL_MAX;
+    minPriceIndex = -1;
+    maxProfit = 0.0;
+    bestBuyDate = -1;
+    bestSellDate = -1;
     lastSpan = 0;
     currentIndex = 0;
+
 }
 
-void Analyzer::update(int price){
+void Analyzer::update(double price){
     
     // stock span
     int span = 1;
@@ -20,28 +24,36 @@ void Analyzer::update(int price){
     spanStack.push({price, span});
     lastSpan = span;
 
-    // Max profit: track minimum price seen so far, then compute profit
-    minPrice = min(minPrice, price);
-    maxProfit = max(maxProfit, price - minPrice);
-
-    //Next greater element
-    int index = currentIndex;
-
-    while (!ngeStack.empty() && price > ngeStack.top().first) {
-        int prevIndex = ngeStack.top().second;
-        nge[prevIndex] = price;
-        ngeStack.pop();
+    // profit and Best Trade
+    if (price < minPrice) {
+        minPrice = price;
+        minPriceIndex = currentIndex;
     }
 
-    ngeStack.push({price, index});
-    // for default value of current
-    nge.push_back(-1);
+    if (price - minPrice > maxProfit) {
+        maxProfit = price - minPrice;
+        bestBuyDate = minPriceIndex;
+        bestSellDate = currentIndex;
+    }
+
+    // using heaps
+    minHeap.push(price);
+    maxHeap.push(price);
 
     currentIndex++;
 }
 
 // getters 
 int Analyzer::getSpan() { return lastSpan; }
-int Analyzer::getMaxProfit() { return maxProfit; }
-int Analyzer::getLastNGE() { return nge[currentIndex-1]; }
-int Analyzer::getNGEAt(int index){ return nge[index]; }
+double Analyzer::getMaxProfit() { return maxProfit; }
+int Analyzer::getBestBuyDate() { return bestBuyDate; }
+int Analyzer::getBestSellDate() { return bestSellDate; }
+bool Analyzer::hasBestTrade() const {
+    return bestBuyDate >= 0 && bestSellDate >= 0;
+}
+double Analyzer::getHeapMin() {
+    return minHeap.empty() ? 0.0 : minHeap.top();
+}
+double Analyzer::getHeapMax() {
+    return maxHeap.empty() ? 0.0 : maxHeap.top();
+}

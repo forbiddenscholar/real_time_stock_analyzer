@@ -14,24 +14,29 @@ int main(int argc, char* argv[]) {
 
     string filename = argv[1];
 
-    vector<int> prices = loadPrices(filename);
+    Stream stream(filename);
     Analyzer analyzer;
     FileManager file("../data/output.csv");
 
     int time = 0;
 
-    for (int price : prices) {
+    while (stream.hasNext()) {
+        double price = stream.getNext();
+
         analyzer.update(price);
 
         file.write(
             time,
             price,
             analyzer.getSpan(),
-            analyzer.getMaxProfit()
+            analyzer.getMaxProfit(),
+            analyzer.getHeapMin(),
+            analyzer.getHeapMax(),
+            analyzer.getBestBuyDate(),
+            analyzer.getBestSellDate()
         );
 
         time++;
-        usleep(300000);
     }
 
     return 0;

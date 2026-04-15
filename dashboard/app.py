@@ -2,110 +2,86 @@ import streamlit as st
 import pandas as pd
 import os
 import subprocess
+import yfinance as yf
+import matplotlib.pyplot as plt
+
+# fetching data from the api
+def fetch_api_data(symbol="AAPL"):
+    data = yf.download(symbol, period="1d", interval="1m")
+
+    if data.empty:
+        raise ValueError("No data fetched from API")
+
+    if isinstance(data.columns, pd.MultiIndex):
+        if ("Close", symbol) in data.columns:
+            prices = data[("Close", symbol)]
+        else:
+            prices = data.xs("Close", level=0, axis=1)
+    else:
+        if "Close" in data.columns:
+            prices = data["Close"]
+        else:
+            prices = data.iloc[:, 0]
+
+    prices = prices.squeeze()
+    prices = prices.dropna().reset_index(drop=True)
+
+    df = pd.DataFrame({"price": prices.values})
+
+    path = "../data/api.csv"
+    df.to_csv(path, index=False)
+
+    return path
+
 
 st.set_page_config(layout="wide")
 st.title("📈 Stock Analyzer")
 
-# ---------------- INPUT ----------------
-st.sidebar.title("Input")
+stocks = [
+    "AAPL", "GOOGL", "MSFT", "TSLA", "AMZN",
+    "ADANIENT.NS", "RELIANCE.NS", "TCS.NS"
+]
 
-option = st.sidebar.radio(
-    "Choose Input",
-    ["Sample Data", "Manual Input"]
-)
+symbol = st.sidebar.selectbox("Select Stock", stocks)
 
-if option == "Sample Data":
-    file_choice = st.sidebar.selectbox(
-        "Dataset",
-        ["sample_1.csv", "sample_2.csv", "sample_3.csv"]
-    )
-    input_path = f"../data/{file_choice}"
-
-else:
-    user_input = st.sidebar.text_area(
-        "Enter prices",
-        "100,80,60,70,75,85"
-    )
-
-    prices = [int(x.strip()) for x in user_input.split(",")]
-
-    input_path = "../data/custom.csv"
-    pd.DataFrame({"price": prices}).to_csv(input_path, index=False)
-
-# ---------------- RUN ----------------
+# fetch data
+input_path = fetch_api_data(symbol)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SRC_DIR = os.path.join(BASE_DIR, "../src")
 BUILD_DIR = os.path.join(BASE_DIR, "../build")
 input_path = os.path.abspath(input_path)
 
+
+# running the analyzer
 if st.sidebar.button("Run Analyzer"):
 
     st.info("Building...")
 
-    # Create build directory if it doesn't exist
-    if not os.path.exists(BUILD_DIR):
-        os.makedirs(BUILD_DIR)
+    os.makedirs(BUILD_DIR, exist_ok=True)
 
-    # Configure with CMake
-    cmake_config = subprocess.run(
-        ["cmake", ".."],
-        cwd=BUILD_DIR,
-        capture_output=True,
-        text=True
-    )
-
-    if cmake_config.returncode != 0:
-        st.error("CMake configuration failed")
-        st.text(cmake_config.stderr)
-        st.stop()
-
-    # Build with make
-    cmake_build = subprocess.run(
-        ["make"],
-        cwd=BUILD_DIR,
-        capture_output=True,
-        text=True
-    )
-
-    if cmake_build.returncode != 0:
-        st.error("Build failed")
-        st.text(cmake_build.stderr)
-        st.stop()
+    subprocess.run(["cmake", ".."], cwd=BUILD_DIR)
+    subprocess.run(["make"], cwd=BUILD_DIR)
 
     st.success("Build complete!")
     st.info("Running analyzer...")
 
-    # Run app
-    run_app = subprocess.run(
+    subprocess.run(
         [os.path.join(BUILD_DIR, "app"), input_path],
-        cwd=SRC_DIR,
-        capture_output=True,
-        text=True
+        cwd=BUILD_DIR
     )
-
-    st.text(run_app.stdout)
-
-    # Run nge
-    run_nge = subprocess.run(
-        [os.path.join(BUILD_DIR, "nge")],
-        cwd=SRC_DIR,
-        capture_output=True,
-        text=True
-    )
-
-    st.text(run_nge.stdout)
 
     st.success("Processing complete!")
 
-# ---------------- LOAD DATA ----------------
-try:
-    df = pd.read_csv("../data/final.csv")
+    st.rerun()
 
-    if df.empty:
-        st.warning("No data available.")
-    else:
-        # -------- METRICS --------
+
+# loading data
+try:
+    df = pd.read_csv("../data/output.csv")
+
+    if not df.empty:
+
+        # metrics
         col1, col2, col3, col4, col5 = st.columns(5)
 
         col1.metric("Price", df["price"].iloc[-1])
@@ -114,17 +90,52 @@ try:
         col4.metric("Max Price", df["price"].max())
         col5.metric("Min Price", df["price"].min())
 
-        # -------- GRAPH 1 --------
-        st.subheader("Price Trend")
-        st.line_chart(df.set_index("time")["price"])
+        # graphs
+        st.subheader("Price + Buy/Sell Signals")
 
-        # -------- GRAPH 2 --------
+        fig, ax = plt.subplots()
+
+        time_arr = df["time"].to_numpy()
+        price_arr = df["price"].to_numpy()
+
+        ax.plot(time_arr, price_arr, label="Price")
+
+        buy_idx = int(df["buy"].iloc[-1])
+        sell_idx = int(df["sell"].iloc[-1])
+
+        if 0 <= buy_idx < len(price_arr):
+            ax.scatter(
+                buy_idx,
+                price_arr[buy_idx],
+                color="green",
+                marker="^",
+                s=120,
+                label="Buy"
+            )
+
+        if 0 <= sell_idx < len(price_arr):
+            ax.scatter(
+                sell_idx,
+                price_arr[sell_idx],
+                color="red",
+                marker="v",
+                s=120,
+                label="Sell"
+            )
+
+        ax.legend()
+        st.pyplot(fig)
+
+        # span and profit
         st.subheader("Span & Profit")
         st.line_chart(df.set_index("time")[["span", "profit"]])
 
-        # -------- TABLE --------
+        # data table
         st.subheader("Data")
         st.dataframe(df)
+
+    else:
+        st.warning("No data available.")
 
 except FileNotFoundError:
     st.warning("Click 'Run Analyzer' to generate data.")

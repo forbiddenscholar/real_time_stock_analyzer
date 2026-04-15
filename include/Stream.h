@@ -2,5 +2,14 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// Helper function to load prices from CSV file
-vector<int> loadPrices(const string& filename);
+class Stream {
+private:
+    vector<double> prices;
+    int index;
+
+public:
+    Stream(const string& filename);
+
+    bool hasNext();
+    double getNext();
+};

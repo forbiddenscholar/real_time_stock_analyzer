@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(StockAnalyzer)
+project(stock_analyzer)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -12,9 +12,4 @@ add_executable(app
     src/Analyzer.cpp 
     src/Stream.cpp
     src/FileManager.cpp
-)
-
-# NGE processor executable
-add_executable(nge 
-    src/NGEProcessor.cpp
 )

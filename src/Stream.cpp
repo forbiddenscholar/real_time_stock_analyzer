@@ -1,23 +1,25 @@
 #include "Stream.h"
 #include <fstream>
 
-vector<int> loadPrices(const string& filename) {
-    vector<int> prices;
+Stream::Stream(const string& filename) {
     ifstream file(filename);
     string line;
 
-    // skip header
-    getline(file, line);
+    getline(file, line); // skip header
 
     while (getline(file, line)) {
         if (line.empty()) continue;
 
-        // remove possible carriage return / spaces
-        line.erase(remove(line.begin(), line.end(), '\r'), line.end());
-        line.erase(remove_if(line.begin(), line.end(), ::isspace), line.end());
-
-        prices.push_back(stoi(line));
+        prices.push_back(stod(line));
     }
 
-    return prices;
+    index = 0;
+}
+
+bool Stream::hasNext() {
+    return index < prices.size();
+}
+
+double Stream::getNext() {
+    return prices[index++];
 }
