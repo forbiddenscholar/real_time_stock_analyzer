@@ -7,10 +7,11 @@ import matplotlib.pyplot as plt
 
 # fetching data from the api
 def fetch_api_data(symbol="AAPL"):
-    data = yf.download(symbol, period="1d", interval="1m")
+    data = yf.download(symbol, period="5d", interval="5m")
 
     if data.empty:
-        raise ValueError("No data fetched from API")
+        st.error("No data available (market closed or invalid symbol)")
+        return None
 
     if isinstance(data.columns, pd.MultiIndex):
         if ("Close", symbol) in data.columns:
@@ -38,14 +39,29 @@ st.set_page_config(layout="wide")
 st.title("📈 Stock Analyzer")
 
 stocks = [
-    "AAPL", "GOOGL", "MSFT", "TSLA", "AMZN",
-    "ADANIENT.NS", "RELIANCE.NS", "TCS.NS"
+    "AAPL", "GOOGL", "MSFT", "TSLA",
+    "RELIANCE.NS", "TCS.NS"
 ]
 
-symbol = st.sidebar.selectbox("Select Stock", stocks)
+use_sample = st.sidebar.checkbox("Use Offline Data")
 
-# fetch data
-input_path = fetch_api_data(symbol)
+if use_sample:
+    sample_files = {
+        "BPCL Sample": "../data/sample_BPCL.csv",
+        "ITC Sample": "../data/sample_ITC.csv",
+        "RELIANCE Sample": "../data/sample_RELIANCE.csv"
+    }
+
+    choice = st.sidebar.selectbox("Select Dataset", list(sample_files.keys()))
+    input_path = sample_files[choice]
+
+else:
+    symbol = st.sidebar.selectbox("Select Stock", stocks)
+    input_path = fetch_api_data(symbol)
+
+    if input_path is None:
+        st.stop()
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BUILD_DIR = os.path.join(BASE_DIR, "../build")
