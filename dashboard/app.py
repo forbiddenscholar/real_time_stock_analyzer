@@ -343,7 +343,7 @@ def render_simulation_tab(df):
     sim_fig = px.line(visible_df, x="Date", y="price", template="plotly_white")
     sim_fig.update_yaxes(range=[df["price"].min() * 0.95, df["price"].max() * 1.05])
     add_trade_markers(sim_fig, df, current_buy_index, current_sell_index)
-    st.plotly_chart(sim_fig, use_container_width=True)
+    st.plotly_chart(sim_fig, use_container_width=True, key="simulation_main_chart")
 
     sim_metrics = go.Figure()
     sim_metrics.add_trace(
