@@ -53,10 +53,6 @@ int main(int argc, char* argv[]) {
         // Small delay for streaming effect (optional, can be removed)
         // SLEEP_MS(100);
     }
-    
-    // Call computeNGE at the end because the user added it into Analyzer class
-    analyzer.computeNGE(prices);
-
     // Write sorted historical trends file
     vector<double> sorted = analyzer.getSortedPrices(prices);
     ofstream sortOut("data/sorted_prices.csv");

@@ -42,22 +42,6 @@ void Analyzer::update(double price) {
     currentIndex++;
 }
 
-// Compute NGE for all prices using right-to-left stack scan
-// This is called once after all prices are processed
-void Analyzer::computeNGE(const vector<double>& prices) {
-    int n = prices.size();
-    nge.resize(n, -1.0);
-    stack<double> st;
-
-    for (int i = n - 1; i >= 0; i--) {
-        while (!st.empty() && st.top() <= prices[i]) {
-            st.pop();
-        }
-        nge[i] = st.empty() ? -1.0 : st.top();
-        st.push(prices[i]);
-    }
-}
-
 // Custom Merge Sort Implementation to analyze historical trends
 void merge(vector<double>& arr, int left, int mid, int right) {
     int n1 = mid - left + 1;
@@ -105,13 +89,4 @@ double Analyzer::getHeapMin() {
 
 double Analyzer::getHeapMax() {
     return maxHeap.empty() ? 0.0 : maxHeap.top();
-}
-
-double Analyzer::getNGEAt(int index) {
-    if (index < 0 || index >= (int)nge.size()) return -1.0;
-    return nge[index];
-}
-
-int Analyzer::getNGESize() {
-    return (int)nge.size();
 }

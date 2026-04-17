@@ -8,7 +8,6 @@ using namespace std;
 class Analyzer {
 private:
     stack<pair<double, int>> spanStack; // stock span: {price, span}
-    vector<double> nge;
     
     priority_queue<double> maxHeap;
     priority_queue<double, vector<double>, greater<double>> minHeap;
@@ -25,7 +24,6 @@ public:
     Analyzer();
 
     void update(double price);
-    void computeNGE(const vector<double>& prices);
     vector<double> getSortedPrices(const vector<double>& originalPrices);
 
     int getSpan();
@@ -35,8 +33,6 @@ public:
     bool hasBestTrade() const;
     double getHeapMin();
     double getHeapMax();
-    double getNGEAt(int index);
-    int getNGESize();
 };
 
 #endif
